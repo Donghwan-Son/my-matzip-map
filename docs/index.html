@@ -121,16 +121,16 @@
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
-            title: loc.name,
+            //title: loc.name,
             icon: categoryIcons[loc.category] // 카테고리별 커스텀 아이콘 적용
           });
 
           const content = `
             <div style="margin:0;padding:0;line-height:1.5;font-size:14px;">
               <div style="margin:0;font-weight:bold;font-size:16px;">${loc.name}</div>
-              <div>카테고리: ${loc.category}</div>
-              <div>별점: ${getStars(loc.rating)} (${loc.rating})</div>
               <div>주소: ${loc.address}</div>
+              <div>류: ${loc.category}</div>
+              <div>별점: ${getStars(loc.rating)} (${loc.rating})</div>
               <a href="${loc.link}" target="_blank" style="color:#3367d6;">자세히 보기</a>
             </div>
           `;
