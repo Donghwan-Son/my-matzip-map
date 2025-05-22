@@ -4,29 +4,37 @@
     <title>맛집 지도</title>
     <meta charset="utf-8" />
     <style>
+      /* 지도를 전체 화면에 표시 */
       #map {
         height: 100vh;
+        width: 100%;
       }
-      #search-box {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 5;
-        background: white;
-        padding: 8px;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+
+      /* 현재 위치 버튼 디자인 */
+      .custom-map-control-button {
+        background-color: white;
+        border: 0;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        cursor: pointer;
+        font-size: 14px;
       }
     </style>
+
+    <!-- 구글맵 API 불러오기 (여기 API 키는 실제 동작하는 사용자의 키로 교체됨) -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAiQg0kEN0suogq4jL2ptUsaCvrNBRZys"></script>
+
     <script>
       function initMap() {
+        // 지도를 띄울 기본 위치 (서울 중심)
         const map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 37.5665, lng: 126.9780 },
           zoom: 12,
         });
 
+        // 지도에 표시할 맛집 데이터 (예시는 1개만 넣고, 나머지는 동일 형식으로 추가 가능)
         const locations = [
           {name: "청수장", address: "서울 성북구 정릉로 237-2", lat: 37.6053145, lng: 127.0107832, category: "", rating: 5, link: "http://naver.me/5eGZ0n31"},
           {name: "숙성 돈대갈비", address: "서울 마포구 월드컵로 31길 16", lat: 37.5606081, lng: 126.9015882, category: "", rating: 4, link: "http://naver.me/5eGZ0n30"},
@@ -79,22 +87,33 @@
           {name: "우래옥", address: "서울 중구 창경궁로 62-29", lat: 37.56819, lng: 126.9987367, category: "", rating: 5, link: "http://naver.me/5eGZ0n1P"}
         ];
 
+        // 카테고리에 따른 마커 색상 지정 (없으면 기본 회색 마커 사용됨)
+        const categoryIcons = {
+          "한식": "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+          "카페": "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+          "일식": "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+        };
+
+        // 마커 클릭 시 나오는 정보창 (하나만 만들어두고 재사용)
         const infowindow = new google.maps.InfoWindow();
 
+        // 별점 숫자를 별(★)로 바꿔주는 함수
         function getStars(rating) {
           const full = Math.floor(rating);
           const half = rating % 1 >= 0.5 ? 1 : 0;
           return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - half);
         }
 
+        // 위치 배열을 반복하면서 마커 생성
         locations.forEach(loc => {
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
-            title: loc.name
-            // icon 속성 제거
+            title: loc.name,
+            icon: categoryIcons[loc.category] || null // 카테고리 없으면 기본 마커
           });
 
+          // 정보창 내용 (HTML)
           const content = `
             <div style="margin:0;padding:0;line-height:1.5;font-size:14px;">
               <div style="margin:0;font-weight:bold;font-size:16px;">${loc.name}</div>
@@ -104,17 +123,22 @@
             </div>
           `;
 
+          // 마커 클릭 시 정보창 표시
           marker.addListener("click", () => {
             infowindow.setContent(content);
             infowindow.open(map, marker);
           });
         });
 
+        // "현재 위치" 버튼 만들기
         const locationButton = document.createElement("button");
         locationButton.textContent = "현재 위치";
         locationButton.classList.add("custom-map-control-button");
+
+        // 지도 우측 상단에 버튼 추가
         map.controls[google.maps.ControlPosition.TOP_RIGHT].push(locationButton);
 
+        // 버튼 클릭 시 현재 위치로 이동
         locationButton.addEventListener("click", () => {
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -123,7 +147,7 @@
                   lat: position.coords.latitude,
                   lng: position.coords.longitude,
                 };
-                map.setCenter(pos);
+                map.setCenter(pos); // 지도 중심 이동
                 new google.maps.Marker({
                   position: pos,
                   map: map,
@@ -138,30 +162,12 @@
             alert("이 브라우저에서는 위치 기능이 지원되지 않습니다.");
           }
         });
-
-        const input = document.getElementById("search-input");
-        const searchBox = new google.maps.places.SearchBox(input);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
-        searchBox.addListener("places_changed", () => {
-          const places = searchBox.getPlaces();
-          if (places.length == 0) return;
-
-          const bounds = new google.maps.LatLngBounds();
-          places.forEach((place) => {
-            if (!place.geometry || !place.geometry.location) return;
-
-            map.setCenter(place.geometry.location);
-            map.setZoom(15);
-          });
-        });
       }
     </script>
   </head>
+
   <body onload="initMap()">
-    <div id="search-box">
-      <input id="search-input" type="text" placeholder="장소 검색" style="width: 300px;" />
-    </div>
+    <!-- 지도가 표시될 영역 -->
     <div id="map"></div>
   </body>
 </html>
