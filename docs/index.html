@@ -23,6 +23,9 @@
           {name: "상도래미안307", lat: 37.499352, lng: 126.9547334}
         ];
 
+        // ✅ 하나의 InfoWindow 인스턴스를 생성
+        const infowindow = new google.maps.InfoWindow();
+
         locations.forEach(loc => {
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
@@ -30,11 +33,9 @@
             title: loc.name
           });
 
-          const infowindow = new google.maps.InfoWindow({
-            content: `<strong>${loc.name}</strong>`
-          });
-
           marker.addListener("click", () => {
+            // ✅ 기존 InfoWindow 내용만 변경하고 새로 열기
+            infowindow.setContent(`<strong>${loc.name}</strong>`);
             infowindow.open(map, marker);
           });
         });
