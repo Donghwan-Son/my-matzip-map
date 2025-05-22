@@ -28,13 +28,13 @@
             map: map,
             title: loc.name
           });
-      const infowindow = new google.maps.InfoWindow({
-        content: `<strong>${loc.name}</strong>`
-      });
+        const infowindow = new google.maps.InfoWindow({
+          content: `<strong>${loc.name}</strong>`
+        });
 
-      marker.addListener("click", () => {
-        infowindow.open(map, marker);
-      });
+        marker.addListener("click", () => {
+          infowindow.open(map, marker);
+        });
     });
   }
 </script>
