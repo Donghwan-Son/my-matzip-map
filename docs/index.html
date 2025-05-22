@@ -18,9 +18,16 @@
             map: map,
             title: loc.name
           });
-        });
-      }
-    </script>
+      const infowindow = new google.maps.InfoWindow({
+        content: `<strong>${loc.name}</strong>`
+      });
+
+      marker.addListener("click", () => {
+        infowindow.open(map, marker);
+      });
+    });
+  }
+</script>
   </head>
   <body onload="initMap()">
     <div id="map" style="height: 100vh;"></div>
