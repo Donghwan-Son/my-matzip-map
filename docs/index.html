@@ -23,7 +23,7 @@
       }
     </style>
 
-    <!-- 구글맵 API 불러오기 (여기 API 키는 실제 동작하는 사용자의 키로 교체됨) -->
+    <!-- 구글맵 API 불러오기 -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAiQg0kEN0suogq4jL2ptUsaCvrNBRZys"></script>
 
     <script>
@@ -34,7 +34,26 @@
           zoom: 12,
         });
 
-        // 지도에 표시할 맛집 데이터 (예시는 1개만 넣고, 나머지는 동일 형식으로 추가 가능)
+        // 카테고리별 커스텀 아이콘 지정
+        const categoryIcons = {
+          "한식": {
+            url: "https://img.icons8.com/color/48/bibimbap.png",
+            scaledSize: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 40)
+          },
+          "카페": {
+            url: "https://img.icons8.com/color/48/cafe.png",
+            scaledSize: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 40)
+          },
+          "일식": {
+            url: "https://img.icons8.com/color/48/sushi.png",
+            scaledSize: new google.maps.Size(40, 40),
+            anchor: new google.maps.Point(20, 40)
+          }
+        };
+
+        // 맛집 데이터 예시 (카테고리는 필수)
         const locations = [
           {name: "청수장", address: "서울 성북구 정릉로 237-2", lat: 37.6053145, lng: 127.0107832, category: "한식", rating: 5, link: "http://naver.me/5eGZ0n31"},
           {name: "숙성 돈대갈비", address: "서울 마포구 월드컵로 31길 16", lat: 37.5606081, lng: 126.9015882, category: "한식", rating: 4, link: "http://naver.me/5eGZ0n30"},
@@ -87,36 +106,29 @@
           {name: "우래옥", address: "서울 중구 창경궁로 62-29", lat: 37.56819, lng: 126.9987367, category: "일식", rating: 5, link: "http://naver.me/5eGZ0n1P"}
         ];
 
-        // 카테고리에 따른 마커 색상 지정 (없으면 기본 회색 마커 사용됨) (마커 사이트 : "https://kml4earth.appspot.com/icons.html")
-        const categoryIcons = {
-          "한식": "https://maps.google.com/mapfiles/kml/pushpin/red-pushpin.png",
-          "카페": "https://maps.google.com/mapfiles/kml/pushpin/blue-pushpin.png",
-          "일식": "https://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png"
-        };
-
-        // 마커 클릭 시 나오는 정보창 생성
+        // 정보창 객체 생성 (재사용)
         const infowindow = new google.maps.InfoWindow();
 
-        // 별점 텍스트로 변환
+        // 별점을 텍스트로 변환하는 함수
         function getStars(rating) {
           const full = Math.floor(rating);
           const half = rating % 1 >= 0.5 ? 1 : 0;
           return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - half);
         }
 
-        // 마커 생성 및 정보창 연결
+        // 각 위치에 대해 마커 생성 및 정보창 연결
         locations.forEach(loc => {
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
             title: loc.name,
-            icon: categoryIcons[loc.category] || null  // ✅ 카테고리별 아이콘 적용
+            icon: categoryIcons[loc.category] // 카테고리별 커스텀 아이콘 적용
           });
 
           const content = `
             <div style="margin:0;padding:0;line-height:1.5;font-size:14px;">
               <div style="margin:0;font-weight:bold;font-size:16px;">${loc.name}</div>
-              <div>카테고리: ${loc.category || '기타'}</div>
+              <div>카테고리: ${loc.category}</div>
               <div>별점: ${getStars(loc.rating)} (${loc.rating})</div>
               <div>주소: ${loc.address}</div>
               <a href="${loc.link}" target="_blank" style="color:#3367d6;">자세히 보기</a>
@@ -129,13 +141,13 @@
           });
         });
 
-        // "현재 위치" 버튼 생성
+        // 현재 위치 버튼 생성 및 지도에 추가
         const locationButton = document.createElement("button");
         locationButton.textContent = "현재 위치";
         locationButton.classList.add("custom-map-control-button");
         map.controls[google.maps.ControlPosition.TOP_RIGHT].push(locationButton);
 
-        // 현재 위치 이동 기능 (정확도 향상 옵션 포함)
+        // 현재 위치 클릭 시 지도 이동 및 마커 표시
         locationButton.addEventListener("click", () => {
           if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -149,12 +161,17 @@
                   position: pos,
                   map: map,
                   title: "내 위치",
+                  icon: {
+                    url: "https://img.icons8.com/color/48/marker.png",
+                    scaledSize: new google.maps.Size(36, 36),
+                    anchor: new google.maps.Point(18, 36)
+                  }
                 });
               },
               () => {
                 alert("위치 접근 권한이 필요합니다.");
               },
-              { enableHighAccuracy: true } // 위치 정확도 향상 옵션
+              { enableHighAccuracy: true }
             );
           } else {
             alert("이 브라우저에서는 위치 기능이 지원되지 않습니다.");
@@ -163,6 +180,7 @@
       }
     </script>
   </head>
+
   <body onload="initMap()">
     <!-- 지도를 표시할 영역 -->
     <div id="map"></div>
