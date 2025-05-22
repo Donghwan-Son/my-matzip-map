@@ -110,6 +110,7 @@
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
             title: loc.name
+            icon: categoryIcons[loc.category] || null  // ✅ 카테고리별 아이콘 적용
           });
 
           const content = `
