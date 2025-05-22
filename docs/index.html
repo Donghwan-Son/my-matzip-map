@@ -2,47 +2,134 @@
 <html>
   <head>
     <title>맛집 지도</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAiQg0kEN0suogq4jL2ptUsaCvrNBRZys"></script>
+    <meta charset="utf-8" />
+    <style>
+      #map {
+        height: 100vh;
+      }
+      #search-box {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        background: white;
+        padding: 8px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAiQg0kEN0suogq4jL2ptUsaCvrNBRZys&libraries=places"></script>
     <script>
       function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 37.5665, lng: 126.9780 },
-          zoom: 12
+          zoom: 12,
         });
 
         const locations = [
-          {name: "중산센트럴아이파크107", lat: 37.6784316, lng: 126.7827785},
-          {name: "호평파라곤3", lat: 37.6701637, lng: 127.2489227},
-          {name: "공덕파크자이102", lat: 37.5451941, lng: 126.9471063},
-          {name: "북가좌DMC래미안303", lat: 37.5743477, lng: 126.9120565},
-          {name: "판교원마을한림풀에버919", lat: 37.3900119, lng: 127.0962875},
-          {name: "자양이튼타워리버5차B", lat: 37.5321852, lng: 127.0690312},
-          {name: "운중산운마을804", lat: 37.3924592, lng: 127.0719891},
-          {name: "잠실아시아선수촌1", lat: 37.508045, lng: 127.0766464},
-          {name: "대치미도207", lat: 37.4933928, lng: 127.0673501},
-          {name: "상도래미안307", lat: 37.499352, lng: 126.9547334}
+          {name: "중산센트럴아이파크107", lat: 37.6784316, lng: 126.7827785, category: "", rating: , link: ""},
+          {name: "호평파라곤3", lat: 37.6701637, lng: 127.2489227, category: "", rating: , link: ""},
+          {name: "공덕파크자이102", lat: 37.5451941, lng: 126.9471063, category: "", rating: , link: ""},
+          {name: "북가좌DMC래미안303", lat: 37.5743477, lng: 126.9120565, category: "", rating: , link: ""},
+          {name: "판교원마을한림풀에버919", lat: 37.3900119, lng: 127.0962875, category: "", rating: , link: ""},
+          {name: "자양이튼타워리버5차B", lat: 37.5321852, lng: 127.0690312, category: "", rating: , link: ""},
+          {name: "운중산운마을804", lat: 37.3924592, lng: 127.0719891, category: "", rating: , link: ""},
+          {name: "잠실아시아선수촌1", lat: 37.508045, lng: 127.0766464, category: "", rating: , link: ""},
+          {name: "대치미도207", lat: 37.4933928, lng: 127.0673501, category: "", rating: , link: ""},
+          {name: "상도래미안307", lat: 37.499352, lng: 126.9547334, category: "", rating: , link: ""}
         ];
 
-        // ✅ 하나의 InfoWindow 인스턴스를 생성
+        const categoryIcons = {
+          "한식": "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+          "카페": "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+          "일식": "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+        };
+
         const infowindow = new google.maps.InfoWindow();
+
+        function getStars(rating) {
+          const full = Math.floor(rating);
+          const half = rating % 1 >= 0.5 ? 1 : 0;
+          return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - half);
+        }
 
         locations.forEach(loc => {
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
-            title: loc.name
+            title: loc.name,
+            icon: categoryIcons[loc.category] || null
           });
 
+          const content = `
+            <div>
+              <strong>${loc.name}</strong><br/>
+              별점: ${getStars(loc.rating)} (${loc.rating})<br/>
+              <a href="${loc.link}" target="_blank">자세히 보기</a>
+            </div>
+          `;
+
           marker.addListener("click", () => {
-            // ✅ 기존 InfoWindow 내용만 변경하고 새로 열기
-            infowindow.setContent(`<strong>${loc.name}</strong>`);
+            infowindow.setContent(content);
             infowindow.open(map, marker);
+          });
+        });
+
+        // 사용자 위치 버튼
+        const locationButton = document.createElement("button");
+        locationButton.textContent = "현재 위치";
+        locationButton.classList.add("custom-map-control-button");
+        map.controls[google.maps.ControlPosition.TOP_RIGHT].push(locationButton);
+
+        locationButton.addEventListener("click", () => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const pos = {
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude,
+                };
+                map.setCenter(pos);
+                new google.maps.Marker({
+                  position: pos,
+                  map: map,
+                  title: "내 위치",
+                });
+              },
+              () => {
+                alert("위치 접근 권한이 필요합니다.");
+              }
+            );
+          } else {
+            alert("이 브라우저에서는 위치 기능이 지원되지 않습니다.");
+          }
+        });
+
+        // 검색창 기능
+        const input = document.getElementById("search-input");
+        const searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
+        searchBox.addListener("places_changed", () => {
+          const places = searchBox.getPlaces();
+          if (places.length == 0) return;
+
+          const bounds = new google.maps.LatLngBounds();
+          places.forEach((place) => {
+            if (!place.geometry || !place.geometry.location) return;
+
+            map.setCenter(place.geometry.location);
+            map.setZoom(15);
           });
         });
       }
     </script>
   </head>
   <body onload="initMap()">
-    <div id="map" style="height: 100vh;"></div>
+    <div id="search-box">
+      <input id="search-input" type="text" placeholder="장소 검색" style="width: 300px;" />
+    </div>
+    <div id="map"></div>
   </body>
 </html>
