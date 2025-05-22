@@ -32,6 +32,28 @@
         const map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 37.5665, lng: 126.9780 },
           zoom: 12,
+          styles: [
+            {
+              featureType: "poi", // 모든 관심 지점(식당, 병원 등)
+              elementType: "all",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "transit", // 대중교통 (지하철, 정류장)
+              elementType: "all",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "road", // 도로 라벨 (이름)
+              elementType: "labels",
+              stylers: [{ visibility: "off" }]
+            },
+            {
+              featureType: "administrative", // 행정구역 경계
+              elementType: "labels",
+              stylers: [{ visibility: "off" }]
+            }
+          ]
         });
 
         // 카테고리별 커스텀 아이콘 지정
