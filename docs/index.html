@@ -79,12 +79,6 @@
           {name: "우래옥", address: "서울 중구 창경궁로 62-29", lat: 37.56819, lng: 126.9987367, category: "", rating: 5, link: "http://naver.me/5eGZ0n1P"}
         ];
 
-        const categoryIcons = {
-          "한식": "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
-          "카페": "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-          "일식": "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
-        };
-
         const infowindow = new google.maps.InfoWindow();
 
         function getStars(rating) {
@@ -97,12 +91,18 @@
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
-            title: loc.name,
-            icon: categoryIcons[loc.category] || null
+            title: loc.name
+            // icon 속성 제거
           });
 
-          const content = '<div style="line-height:1.5; font-size:14px;"><strong style="font-size:16px;">' + loc.name + '</strong><br>별점: ' + getStars(loc.rating) + ' (' + loc.rating + ')<br>주소: ' + loc.address + '<br><a href="' + loc.link + '" target="_blank" style="color:#3367d6;">자세히 보기</a></div>';
-
+          const content = `
+            <div style="margin:0;padding:0;line-height:1.5;font-size:14px;">
+              <div style="margin:0;font-weight:bold;font-size:16px;">${loc.name}</div>
+              <div>별점: ${getStars(loc.rating)} (${loc.rating})</div>
+              <div>주소: ${loc.address}</div>
+              <a href="${loc.link}" target="_blank" style="color:#3367d6;">자세히 보기</a>
+            </div>
+          `;
 
           marker.addListener("click", () => {
             infowindow.setContent(content);
