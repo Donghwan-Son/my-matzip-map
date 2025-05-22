@@ -20,24 +20,26 @@
           {name: "운중산운마을804", lat: 37.3924592, lng: 127.0719891},
           {name: "잠실아시아선수촌1", lat: 37.508045, lng: 127.0766464},
           {name: "대치미도207", lat: 37.4933928, lng: 127.0673501},
-          {name: "상도래미안307", lat: 37.499352, lng: 126.9547334}];
+          {name: "상도래미안307", lat: 37.499352, lng: 126.9547334}
+        ];
 
         locations.forEach(loc => {
-          new google.maps.Marker({
+          const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
             title: loc.name
           });
-        const infowindow = new google.maps.InfoWindow({
-          content: `<strong>${loc.name}</strong>`
-        });
 
-        marker.addListener("click", () => {
-          infowindow.open(map, marker);
+          const infowindow = new google.maps.InfoWindow({
+            content: `<strong>${loc.name}</strong>`
+          });
+
+          marker.addListener("click", () => {
+            infowindow.open(map, marker);
+          });
         });
-    });
-  }
-</script>
+      }
+    </script>
   </head>
   <body onload="initMap()">
     <div id="map" style="height: 100vh;"></div>
