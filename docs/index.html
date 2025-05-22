@@ -90,7 +90,7 @@
         function getStars(rating) {
           const full = Math.floor(rating);
           const half = rating % 1 >= 0.5 ? 1 : 0;
-          return "\u2605".repeat(full) + (half ? "\u00bd" : "") + "\u2606".repeat(5 - full - half);
+          return "★".repeat(full) + (half ? "½" : "") + "☆".repeat(5 - full - half);
         }
 
         locations.forEach(loc => {
@@ -101,14 +101,8 @@
             icon: categoryIcons[loc.category] || null
           });
 
-          const content = `
-            <div style="line-height:1.5; font-size:14px;">
-              <div><strong>${loc.name}</strong></div>
-              <div>별점: ${getStars(loc.rating)} (${loc.rating})</div>
-              <div>주소: ${loc.address}</div>
-              <div><a href="${loc.link}" target="_blank" style="color:#3367d6;">자세히 보기</a></div>
-            </div>
-          `;
+          const content = '<div style="line-height:1.5; font-size:14px;"><strong style="font-size:16px;">' + loc.name + '</strong><br>별점: ' + getStars(loc.rating) + ' (' + loc.rating + ')<br>주소: ' + loc.address + '<br><a href="' + loc.link + '" target="_blank" style="color:#3367d6;">자세히 보기</a></div>';
+
 
           marker.addListener("click", () => {
             infowindow.setContent(content);
