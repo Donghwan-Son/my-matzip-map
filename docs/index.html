@@ -101,12 +101,8 @@
             icon: categoryIcons[loc.category] || null
           });
 
-          const content = `<div style="line-height:1.5; font-size:14px;">
-<strong style="font-size:16px;">${loc.name}</strong><br>
-별점: ${getStars(loc.rating)} (${loc.rating})<br>
-주소: ${loc.address}<br>
-<a href="${loc.link}" target="_blank" style="color:#3367d6;">자세히 보기</a>
-</div>`;
+          const content = '<div style="line-height:1.5; font-size:14px;"><strong style="font-size:16px;">' + loc.name + '</strong><br>별점: ' + getStars(loc.rating) + ' (' + loc.rating + ')<br>주소: ' + loc.address + '<br><a href="' + loc.link + '" target="_blank" style="color:#3367d6;">자세히 보기</a></div>';
+
 
           marker.addListener("click", () => {
             infowindow.setContent(content);
