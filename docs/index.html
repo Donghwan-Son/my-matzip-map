@@ -19,7 +19,7 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       }
     </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAiQg0kEN0suogq4jL2ptUsaCvrNBRZys&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAiQg0kEN0suogq4jL2ptUsaCvrNBRZys"></script>
     <script>
       function initMap() {
         const map = new google.maps.Map(document.getElementById("map"), {
@@ -79,20 +79,36 @@
           {name: "우래옥", address: "서울 중구 창경궁로 62-29", lat: 37.56819, lng: 126.9987367, category: "", rating: 5, link: "http://naver.me/5eGZ0n1P"}
         ];
 
+        const categoryIcons = {
+          "한식": "http://maps.google.com/mapfiles/ms/icons/red-dot.png",
+          "카페": "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+          "일식": "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+        };
+
         const infowindow = new google.maps.InfoWindow();
+
+        function getStars(rating) {
+          const full = Math.floor(rating);
+          const half = rating % 1 >= 0.5 ? 1 : 0;
+          return "\u2605".repeat(full) + (half ? "\u00bd" : "") + "\u2606".repeat(5 - full - half);
+        }
 
         locations.forEach(loc => {
           const marker = new google.maps.Marker({
             position: { lat: loc.lat, lng: loc.lng },
             map: map,
-            title: loc.name
+            title: loc.name,
+            icon: categoryIcons[loc.category] || null
           });
 
-          const content = `<div style="font-family:Roboto,Arial,sans-serif;font-size:14px;">
-<strong style="font-size:16px;">${loc.name}</strong><br>
-${loc.address}<br>
-<a href="${loc.link}" target="_blank" style="color:#3367d6; text-decoration:none;">Google 지도에서 보기</a>
-</div>`;
+          const content = `
+            <div style="line-height:1.5; font-size:14px;">
+              <div><strong>${loc.name}</strong></div>
+              <div>별점: ${getStars(loc.rating)} (${loc.rating})</div>
+              <div>주소: ${loc.address}</div>
+              <div><a href="${loc.link}" target="_blank" style="color:#3367d6;">자세히 보기</a></div>
+            </div>
+          `;
 
           marker.addListener("click", () => {
             infowindow.setContent(content);
@@ -135,10 +151,12 @@ ${loc.address}<br>
 
         searchBox.addListener("places_changed", () => {
           const places = searchBox.getPlaces();
-          if (places.length === 0) return;
+          if (places.length == 0) return;
+
           const bounds = new google.maps.LatLngBounds();
           places.forEach((place) => {
             if (!place.geometry || !place.geometry.location) return;
+
             map.setCenter(place.geometry.location);
             map.setZoom(15);
           });
